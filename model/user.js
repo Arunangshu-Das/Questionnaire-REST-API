@@ -7,33 +7,14 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-  },
-  phone_number: {
-    type: String,
     unique: true,
-    default: null,
+  },
+  pno: {
+    type: String,
   },
   password: {
     type: String,
   },
-  userid: {
-    type: String,
-  },
-  testid: {
-    type: String,
-    default: null,
-  },
-  score: {
-    type: Number,
-    default: 0,
-  },
-  exam: {
-    type: Boolean,
-    default: false,
-  },
-  token: {
-    type: String,
-  },
 });
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model("hello", userSchema);

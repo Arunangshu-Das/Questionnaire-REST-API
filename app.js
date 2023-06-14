@@ -46,38 +46,40 @@ app.post("/api/signup", async (req, res) => {
     const { name, email, password, phone_number } = req.body;
 
     if (!(name && email && password)) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are mandatory",
-      });
+      res.status(401).send("All fields are mandetory");
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "Email already exists",
-      });
+    const extUser = await User.findOne({ email });
+    if (extUser) {
+      res.status(401).send("User already found");
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = new User({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      phone_number,
-    });
+    const encryptPassword = await bcrypt.hash(password, 12);
 
+    let user;
+    if (phone_number) {
+      user = await User.create({
+        name,
+        email,
+        pno: phone_number,
+        password: encryptPassword,
+      });
+    } else {
+      user = await User.create({
+        name,
+        email,
+        pno: "",
+        password: encryptPassword,
+      });
+    }
 
     res.status(200).json({
       success: true,
       message: "Signed up successfully",
     });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+  } catch (error) {
+    console.log(error);
+    console.log("Error !!");
   }
 });
 
@@ -93,7 +95,8 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email });
+    console.log(user);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({
         success: false,
